@@ -121,7 +121,7 @@ class Ai:
                             if y + 1 != BoardWidth:
                                 if self.Placement[y + 1][x] != -2:
                                     self.Placement[y + 1][x] = -1
-                            if y - 1 != BoardWidth:
+                            if y - 1 != -1:
                                 if self.Placement[y - 1][x] != -2:
                                     self.Placement[y - 1][x] = -1
 
@@ -383,3 +383,165 @@ class Ai:
                     if ship.name == self.shipsunk:
                         self.ships.remove(ship)
                 self.sunk = False
+
+
+class Player():
+    def __init__(self, name, gridpos):
+        self.gridpos = gridpos
+        self.name = name
+        self.Carrier = Ship("Carrier", 5)
+        self.Battleship = Ship("Battleship", 4)
+        self.Destroyer = Ship("Destroyer", 3)
+        self.Submarine = Ship("Submarine", 3)
+        self.Boat = Ship("Boat", 2)
+
+        self.Board = [[0] * BoardWidth for _ in range(BoardLength)]
+
+        self.Placement = [[0] * BoardWidth for _ in range(BoardLength)]
+
+        self.Columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+
+        self.ships = [self.Carrier, self.Battleship, self.Destroyer, self.Submarine, self.Boat]
+
+        self.shipsalive = [self.Carrier, self.Battleship, self.Destroyer, self.Submarine, self.Boat]
+
+    def place_ship(self, ship):
+        # Finding a random point and direction to place the ship on
+        x = int(input("X coordinate of " + ship.name + ": ")) - 1
+        y = int(input("Y coordinate of " + ship.name + ": ")) - 1
+        direction = input("Which direction is the ship facing(Up, Down, Left, Right)? ")
+        # Checking if it will fit with the point and direction giveb
+        for i in range(0, ship.length):
+            pos = True
+            if direction == "Up":
+                if y - ship.length + 1 >= 0:
+                    if (self.Placement[y - i][x] == -2) or (self.Placement[y - i][x] == -1):
+                        pos = False
+                        break
+                else:
+                    pos = False
+                    break
+
+            elif direction == "Down":
+                if y + ship.length <= BoardLength:
+                    if self.Placement[y + i][x] == -2 or self.Placement[y + i][x] == -1:
+                        pos = False
+                        break
+                else:
+                    pos = False
+                    break
+
+
+            elif direction == "Left":
+                if x - ship.length + 1 >= 0:
+                    if self.Placement[y][x - i] == -2 or self.Placement[y][x - i] == -1:
+                        pos = False
+                        break
+                else:
+                    pos = False
+                    break
+
+            elif direction == "Right":
+                if x + ship.length <= BoardWidth:
+                    if self.Placement[y][x + i] == -2 or self.Placement[y][x + i] == -1:
+                        pos = False
+                        break
+                else:
+                    pos = False
+                    break
+
+        if pos:
+            # Placing the ships and setting the remaining edges to non placement
+            for i in range(0, ship.length):
+                if direction == "Up":
+                    self.Placement[y - i][x] = -2
+                    ship.columns.append(x + 1)
+                    ship.rows.append(self.Columns[y - i])
+                if direction == "Down":
+                    self.Placement[y + i][x] = -2
+                    ship.columns.append(x + 1)
+                    ship.rows.append(self.Columns[y + i])
+                if direction == "Left":
+                    self.Placement[y][x - i] = -2
+                    ship.columns.append(x - i + 1)
+                    ship.rows.append(self.Columns[y])
+                if direction == "Right":
+                    self.Placement[y][x + i] = -2
+                    ship.columns.append(x + i + 1)
+                    ship.rows.append(self.Columns[y])
+            # setting the edges to not palcement
+            if not shipscantouch:
+                for y in range(BoardLength):
+                    for x in range(BoardWidth):
+                        if self.Placement[y][x] == -2:
+                            if x + 1 != BoardWidth:
+                                if self.Placement[y][x + 1] != -2:
+                                    self.Placement[y][x + 1] = -1
+                            if x - 1 != -1:
+                                if self.Placement[y][x - 1] != -2:
+                                    self.Placement[y][x - 1] = -1
+                            if y + 1 != BoardWidth:
+                                if self.Placement[y + 1][x] != -2:
+                                    self.Placement[y + 1][x] = -1
+                            if y - 1 != -1:
+                                if self.Placement[y - 1][x] != -2:
+                                    self.Placement[y - 1][x] = -1
+
+        else:
+            # if the ship don't fit with the directions, do it all again
+            print("Ship doesn't fit, try again")
+            self.place_ship(ship)
+
+    def player_fire(self, shoton):
+        hit = False
+        row = "".join(c for c in shoton if c.isalpha())
+        column = int("".join(c for c in shoton if c.isdecimal()))
+        for ship in self.shipsalive:
+            for i in range(len(ship.rows)):
+                if ship.columns[i] == column and ship.rows[i] == row:
+                    hit = True
+                    ship.rows.remove(row)
+                    ship.columns.remove(column)
+                    self.Placement[self.Columns.index(row)][column - 1] = -3
+                    break
+        if hit:
+            return True
+        else:
+            return False
+
+    def fire(self, enemy):
+        firex = int(input("X coordinate of your attack: ")) - 1
+        firey = int(input("Y coordinate of your attack: ")) - 1
+        shoton = self.Columns[firey] + str(firex + 1)
+        hit = enemy.player_fire(shoton)
+        # self.print_board()
+        # If hit or miss
+        if hit:
+            self.Board[firey][firex] = -2
+        else:
+            self.Board[firey][firex] = -1
+
+    def game_over(self):
+        for ship in self.shipsalive:
+            if len(ship.rows) == 0:
+                self.shipsalive.remove(ship)
+        if len(self.shipsalive) == 0:
+            return True
+        return False
+
+    def take_turn(self, enemy):
+        self.fire(enemy)
+
+    def print_board(self):
+        print("")
+        print(self.name)
+        print("")
+        for y in range(BoardLength):
+            print(self.Board[y])
+
+    def print_placement(self):
+        print("")
+        print(self.name)
+        print("")
+        for y in range(BoardLength):
+            print(self.Placement[y])
