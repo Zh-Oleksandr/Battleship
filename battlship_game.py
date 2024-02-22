@@ -24,8 +24,8 @@ battleship_ai.BoardWidth = 10
 battleship_ai.BoardLength = 10
 
 pvp = False
-pva = False
-ava = True
+pva = True
+ava = False
 
 pygame.init()
 
