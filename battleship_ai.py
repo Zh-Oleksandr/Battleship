@@ -4,7 +4,7 @@ BoardLength = 10
 BoardWidth = 10
 directions = ["Up", "Down", "Left", "Right"]
 
-shipscantouch = True
+shipscantouch = False
 
 
 class Ship:
@@ -408,9 +408,9 @@ class Player():
         self.shipsalive = [self.Carrier, self.Battleship, self.Destroyer, self.Submarine, self.Boat]
 
     def place_ship(self, ship):
-        # Finding a random point and direction to place the ship on
-        x = int(input("X coordinate of " + ship.name + ": ")) - 1
-        y = int(input("Y coordinate of " + ship.name + ": ")) - 1
+        location = input("Which coordinate do you want " + ship.name + " to be on?: ")
+        y = self.Columns.index("".join(c for c in location if c.isalpha()))
+        x = int("".join(c for c in location if c.isdecimal())) - 1
         direction = input("Which direction is the ship facing(Up, Down, Left, Right)? ")
         # Checking if it will fit with the point and direction giveb
         for i in range(0, ship.length):
@@ -512,9 +512,9 @@ class Player():
             return False
 
     def fire(self, enemy):
-        firex = int(input("X coordinate of your attack: ")) - 1
-        firey = int(input("Y coordinate of your attack: ")) - 1
-        shoton = self.Columns[firey] + str(firex + 1)
+        shoton = input("Where do you want to fire?: ")
+        firey = self.Columns.index("".join(c for c in shoton if c.isalpha()))
+        firex = int("".join(c for c in shoton if c.isdecimal())) - 1
         hit = enemy.player_fire(shoton)
         # self.print_board()
         # If hit or miss
