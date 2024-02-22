@@ -3,6 +3,8 @@ import time
 import pygame
 import battleship_ai
 
+random.seed(0)
+
 Screen_Width = 1200
 Screen_Height = 1200
 

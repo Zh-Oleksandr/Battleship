@@ -4,7 +4,7 @@ BoardLength = 10
 BoardWidth = 10
 directions = ["Up", "Down", "Left", "Right"]
 
-shipscantouch = False
+shipscantouch = True
 
 
 class Ship:
@@ -138,26 +138,28 @@ class Ai:
                     if x + i >= BoardWidth:
                         fits = False
                         break
-                    elif (self.Board[y][x + i] == -1 or self.Board[y][x + i] == -2):
+                    elif (self.Board[y][x + i] == -1 or (self.Board[y][x + i] == -2 and not shipscantouch)):
                         fits = False
                         break
 
                 if fits:
                     for spotx in range(ship.length):
-                        self.Board[y][x + spotx] += 1
+                        if self.Board[y][x + spotx] != -2:
+                            self.Board[y][x + spotx] += 1
                     # Check for Y
                 for i in range(ship.length):
                     fits = True
                     if y + i >= BoardLength:
                         fits = False
                         break
-                    elif (self.Board[y + i][x] == -1 or self.Board[y + i][x] == -2):
+                    elif (self.Board[y + i][x] == -1 or (self.Board[y + i][x] == -2 and not shipscantouch)):
                         fits = False
                         break
 
                 if fits:
                     for spoty in range(ship.length):
-                        self.Board[y + spoty][x] += 1
+                        if self.Board[y + spoty][x] != -2:
+                            self.Board[y + spoty][x] += 1
 
     def spotship(self, ship, locy, locx, horizontal, vertical):
         # Check for X
